@@ -1,0 +1,39 @@
+version: '3.6'
+services:
+  app:
+    container_name: palindrom
+    build: .
+    ports: 
+      - 8080:8080 # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: on-failure
+    volumes:
+      - api:/usr/src/app/
+    depends_on:
+      - mysql # This service depends on mysql. Start that first.
+    networks:
+      - fullstack
+
+  mysql:
+     image: mysql:5.7
+     restart: always
+     container_name: palindromDB
+     ports: 
+       - '3306:3306'
+     environment: 
+       - MYSQL_DATABASE=test  
+       - MYSQL_USER=test
+       - MYSQL_PASSWORD=admin
+       - MYSQL_ROOT_HOST=%
+       - MYSQL_ROOT_PASSWORD=admin
+     volumes:
+       - database_mysql:/var/lib/mysql
+       - "./sql/db.sql:/docker-entrypoint-initdb.d/db.sql"
+     networks:
+       - fullstack
+volumes:
+  api:
+  database_mysql:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  fullstack:
